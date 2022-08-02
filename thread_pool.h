@@ -22,7 +22,7 @@ namespace {
         mutex lock_; //线程的互斥设施
         bool run_ {true};
         condition_variable task_cv_;
-        uint32_t idle_thread_num; //空闲线程数
+        uint32_t idle_thread_num{0}; //空闲线程数
 
     public:
         ThreadPool(uint32_t thread_num = 4) {
@@ -66,7 +66,7 @@ namespace {
             future<RetType> future = task->get_future();
             {
                 lock_guard<mutex> lock(lock_);
-                tasks_.emplace([task](){ (*task)(); });
+                tasks_.emplace([task](){ (*task)(); }); // 将task放在任务队列
             }
             task_cv_.notify_one(); // 唤醒一个线程执行
             return future;
